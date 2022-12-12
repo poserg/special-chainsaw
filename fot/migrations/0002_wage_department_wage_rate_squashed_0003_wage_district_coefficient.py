@@ -5,7 +5,8 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    replaces = [('fot', '0002_wage_department_wage_rate'), ('fot', '0003_wage_district_coefficient')]
+    replaces = [('fot', '0002_wage_department_wage_rate'),
+                ('fot', '0003_wage_district_coefficient')]
 
     dependencies = [
         ('fot', '0001_initial'),
