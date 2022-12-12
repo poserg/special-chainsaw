@@ -86,8 +86,8 @@ class Wage(Timestamped):
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
     salary = models.FloatField()
-    monthly_premium = models.FloatField(blank=True, null=True)
-    quarterly_premium = models.FloatField(blank=True, null=True)
+    monthly_premium = models.FloatField(default=0)
+    quarterly_premium = models.FloatField(default=0)
     department = models.CharField(max_length=100, blank=True)
     rate = models.FloatField(default=1)
     district_coefficient = models.FloatField(default=1)
@@ -98,8 +98,10 @@ class Wage(Timestamped):
     )
 
     def __str__(self):
-        return ', '.join((map(str, (self.salary,
-                          self.monthly_premium, self.quarterly_premium))))
+        return f'{self.employee}: ' + ', '.join(
+            (map(str, (self.salary,
+                       self.monthly_premium,
+                       self.quarterly_premium))))
 
     class Meta:
         constraints = [
@@ -108,6 +110,8 @@ class Wage(Timestamped):
                 name='unique_forecast_employee_combination',
             )
         ]
+
+        ordering = ("employee", "created",)
 
 
 class MarketWage(Timestamped):
