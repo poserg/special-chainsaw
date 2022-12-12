@@ -90,6 +90,7 @@ class Wage(Timestamped):
     quarterly_premium = models.FloatField(blank=True, null=True)
     department = models.CharField(max_length=100, blank=True)
     rate = models.FloatField(default=1)
+    district_coefficient = models.FloatField(default=1)
 
     position = models.CharField(
         max_length=50,
