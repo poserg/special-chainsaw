@@ -1,5 +1,7 @@
 from django.db import models
 from behaviors.behaviors import Timestamped
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Employee(Timestamped):
@@ -81,7 +83,7 @@ POSITION_CHOICES = [
 
 
 class Wage(Timestamped):
-    forecast = models.ForeignKey(Forecast, on_delete=models.PROTECT,
+    forecast = models.ForeignKey(Forecast, on_delete=models.CASCADE,
                                  blank=True, null=True)
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
     comment = models.TextField(blank=True)
@@ -124,3 +126,12 @@ class MarketWage(Timestamped):
 
     def __str__(self):
         return f'{self.position} - {self.wage}'
+
+
+@receiver(post_save, sender=Forecast, dispatch_uid="create_forecasts_wages")
+def create_forecasts_wages(sender, instance, **kwargs):
+    if instance.wage_set.count() > 0:
+        return
+    employes = Employee.objects.filter(is_active=True)
+    for employee in employes:
+        Wage.objects.create(forecast=instance, employee=employee, salary=0)
