@@ -23,6 +23,8 @@ class WageAdmin(admin.ModelAdmin):
     list_display = (
         "employee",
         "created",
+        "modified",
+        "forecast",
         "position",
         "show_net_salary",
         "salary",
@@ -33,8 +35,8 @@ class WageAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
+        "forecast",
         "employee",
-        # "position",
     )
 
     def show_net_salary(self, obj):
