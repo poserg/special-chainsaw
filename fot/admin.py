@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import admin
 from .models import Employee, Wish, Forecast, Wage, \
     MarketWage
@@ -16,6 +17,24 @@ class WishAdmin(admin.ModelAdmin):
 @admin.register(Forecast)
 class ForecastAdmin(admin.ModelAdmin):
     ...
+
+
+class YourModelForm(forms.ModelForm):
+
+    extra_field = forms.CharField(required=False)
+
+    # def save(self, commit=True):
+    #     extra_field = self.cleaned_data.get('extra_field', None)
+    #     # ...do something with extra_field here...
+    #     return super(YourModelForm, self).save(commit=commit)
+
+    class Meta:
+        model = Wage
+        # fields = [
+        #     'employee',
+        #     'forecast',
+        # ]
+        fields = '__all__'
 
 
 @admin.register(Wage)
@@ -45,6 +64,17 @@ class WageAdmin(admin.ModelAdmin):
 
     show_net_salary.short_description = "Net Salary"
 
+    readonly_fields = (
+        # 'extra_field',
+    )
+
+    form = YourModelForm
+
+    # fieldsets = (
+    #     (None, {
+    #         'fields': ('employee', 'salary', 'extra_field',),
+    #     }),
+    # )
     list_editable = (
         'position',
         'salary',
