@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Forecast, Employee
+from .models import Forecast, Employee, Wage
 
 
 class ForecastTestCase(TestCase):
@@ -20,3 +20,33 @@ class ForecastTestCase(TestCase):
 
         forecat.save()
         self.assertEqual(forecat.wage_set.count(), 1)
+
+
+class WageTestCase(TestCase):
+
+    # def test_calc_net_salary(self):
+    #     employee = Employee.objects.create(
+    #         first_name='Bob', last_name='Wilson')
+    #     wage = Wage.objects.create(
+    #         employee=employee,
+    #         salary=100,
+    #         monthly_premium=20,
+    #         quarterly_premium=45)
+    #     self.assertEqual(wage.net_salary(), (100+20+45/3)*0.87)
+
+    def test_growth(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        wage1 = Wage.objects.create(
+            employee=employee,
+            salary=100,
+            monthly_premium=20,
+            quarterly_premium=45)
+        wage2 = Wage.objects.create(
+            employee=employee,
+            salary=120,
+            quarterly_premium=60)
+
+        self.assertEqual(wage1.growth(), "0 %")
+        self.assertEqual(wage2.growth(), str(
+            round((120+60/3)*100/(100+20+45/3)-100, 2)) + " %")

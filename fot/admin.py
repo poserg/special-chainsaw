@@ -22,16 +22,17 @@ class ForecastAdmin(admin.ModelAdmin):
 class WageAdmin(admin.ModelAdmin):
     list_display = (
         "employee",
-        "created",
-        "modified",
-        "forecast",
+        # "forecast",
         "position",
         "show_net_salary",
         "salary",
         "monthly_premium",
         "quarterly_premium",
+        "growth",
         "rate",
         "district_coefficient",
+        "created",
+        "modified",
     )
 
     list_filter = (
@@ -43,6 +44,13 @@ class WageAdmin(admin.ModelAdmin):
         return (obj.salary+obj.monthly_premium+obj.quarterly_premium/3)*0.87
 
     show_net_salary.short_description = "Net Salary"
+
+    list_editable = (
+        'position',
+        'salary',
+        "monthly_premium",
+        "quarterly_premium",
+    )
 
 
 @admin.register(MarketWage)

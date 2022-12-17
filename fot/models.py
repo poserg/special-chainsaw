@@ -103,6 +103,21 @@ class Wage(Timestamped):
                        self.monthly_premium,
                        self.quarterly_premium))))
 
+    def growth(self):
+        wages = Wage.objects.filter(
+            employee=self.employee,
+            created__lt=self.created
+        ).order_by('-created')
+
+        if wages.count() == 0:
+            return "0 %"
+        wage = wages[0]
+
+        old_total = self.salary + self.monthly_premium + \
+            self.quarterly_premium/3
+        new_total = wage.salary+wage.monthly_premium+wage.quarterly_premium/3
+        return str(round(old_total*100/new_total - 100, 2)) + " %"
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
