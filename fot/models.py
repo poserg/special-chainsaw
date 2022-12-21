@@ -91,6 +91,7 @@ class Wage(Timestamped):
     department = models.CharField(max_length=100, blank=True)
     rate = models.FloatField(default=1)
     district_coefficient = models.FloatField(default=1)
+    aprooved = models.DateTimeField(null=True, blank=True, db_index=True)
 
     position = models.CharField(
         max_length=50,
