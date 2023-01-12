@@ -45,6 +45,7 @@ class WageAdmin(admin.ModelAdmin):
         "position",
         "show_net_salary",
         "growth",
+        "annual_growth",
         "salary",
         "monthly_premium",
         "quarterly_premium",

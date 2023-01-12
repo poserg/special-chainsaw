@@ -1,5 +1,10 @@
 from django.test import TestCase
 from .models import Forecast, Employee, Wage
+# from django.db import connection
+# from django.test.utils import CaptureQueriesContext
+from datetime import datetime
+import pytz
+from django.conf import settings
 
 
 class ForecastTestCase(TestCase):
@@ -49,4 +54,28 @@ class WageTestCase(TestCase):
 
         self.assertEqual(wage1.growth(), "0 %")
         self.assertEqual(wage2.growth(), str(
+            round((120+60/3)*100/(100+20+45/3)-100, 2)) + " %")
+
+    def test_annual_growth(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        tz = pytz.timezone(settings.TIME_ZONE)
+        wage1 = Wage.objects.create(
+            aprooved=datetime(2021, 4, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=100,
+            monthly_premium=20,
+            quarterly_premium=45)
+        wage2 = Wage.objects.create(
+            aprooved=datetime(2022, 10, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=120,
+            quarterly_premium=60)
+
+        self.assertEqual(wage1.annual_growth(), '-')
+        # with CaptureQueriesContext(connection) as ctx:
+        #     # code that runs SQL queries
+        #     wage2.annual_growth()
+        #     print(ctx.captured_queries)
+        self.assertEqual(wage2.annual_growth(), str(
             round((120+60/3)*100/(100+20+45/3)-100, 2)) + " %")

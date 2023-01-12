@@ -1,5 +1,11 @@
 from django.db import models
 from behaviors.behaviors import Timestamped
+from datetime import datetime
+import pytz
+from django.conf import settings
+
+
+tz = pytz.timezone(settings.TIME_ZONE)
 
 
 class Employee(Timestamped):
@@ -104,6 +110,12 @@ class Wage(Timestamped):
                        self.monthly_premium,
                        self.quarterly_premium))))
 
+    def _calc_net_salary(self, wage):
+        return wage.salary+wage.monthly_premium+wage.quarterly_premium/3
+
+    def _calc_growth(self, old_total, new_total):
+        return new_total*100/old_total - 100
+
     def growth(self):
         wages = Wage.objects.filter(
             employee=self.employee,
@@ -114,10 +126,29 @@ class Wage(Timestamped):
             return "0 %"
         wage = wages[0]
 
-        old_total = self.salary + self.monthly_premium + \
-            self.quarterly_premium/3
-        new_total = wage.salary+wage.monthly_premium+wage.quarterly_premium/3
-        return str(round(old_total*100/new_total - 100, 2)) + " %"
+        new_total = self._calc_net_salary(self)
+        old_total = self._calc_net_salary(wage)
+        return str(round(self._calc_growth(old_total, new_total), 2)) + " %"
+
+    def annual_growth(self):
+        last_year_wages = Wage.objects.filter(
+            aprooved__lt=datetime(
+                self.aprooved.year - 1,
+                12,
+                31,
+                23,
+                59,
+                0,
+                tzinfo=tz),
+        ).order_by('-aprooved')
+
+        if last_year_wages.count() == 0:
+            return "-"
+
+        new_total = self._calc_net_salary(self)
+        wage = last_year_wages[0]
+        old_total = self._calc_net_salary(wage)
+        return str(round(self._calc_growth(old_total, new_total), 2)) + " %"
 
     class Meta:
         constraints = [
