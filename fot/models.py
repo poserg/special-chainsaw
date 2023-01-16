@@ -120,7 +120,7 @@ class Wage(Timestamped):
         wages = Wage.objects.filter(
             employee=self.employee,
             created__lt=self.created
-        ).order_by('-created')
+        ).order_by('-aprooved')
 
         if wages.count() == 0:
             return "0 %"
@@ -132,6 +132,7 @@ class Wage(Timestamped):
 
     def annual_growth(self):
         last_year_wages = Wage.objects.filter(
+            employee=self.employee,
             aprooved__lt=datetime(
                 self.aprooved.year - 1,
                 12,
@@ -140,6 +141,14 @@ class Wage(Timestamped):
                 59,
                 0,
                 tzinfo=tz),
+            aprooved__gt=datetime(
+                self.aprooved.year - 1,
+                1,
+                1,
+                0,
+                0,
+                0,
+                tzinfo=tz)
         ).order_by('-aprooved')
 
         if last_year_wages.count() == 0:
@@ -158,7 +167,7 @@ class Wage(Timestamped):
             )
         ]
 
-        ordering = ("employee", "created",)
+        ordering = ("employee", "aprooved",)
 
 
 class MarketWage(Timestamped):

@@ -79,3 +79,46 @@ class WageTestCase(TestCase):
         #     print(ctx.captured_queries)
         self.assertEqual(wage2.annual_growth(), str(
             round((120+60/3)*100/(100+20+45/3)-100, 2)) + " %")
+
+    def test_zero_annual_growth(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        tz = pytz.timezone(settings.TIME_ZONE)
+        wage1 = Wage.objects.create(
+            aprooved=datetime(2020, 10, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=100,
+            monthly_premium=0,
+            quarterly_premium=0)
+        wage2 = Wage.objects.create(
+            aprooved=datetime(2022, 4, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=100,
+            monthly_premium=20,
+            quarterly_premium=45)
+
+        self.assertEqual(wage1.annual_growth(), '-')
+        self.assertEqual(wage2.annual_growth(), '-')
+
+    def test_annual_growth_by_employee(self):
+        employee1 = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        tz = pytz.timezone(settings.TIME_ZONE)
+        wage1 = Wage.objects.create(
+            aprooved=datetime(2021, 10, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee1,
+            salary=100,
+            monthly_premium=0,
+            quarterly_premium=0)
+
+        employee2 = Employee.objects.create(
+            first_name='Mark', last_name='Spenser')
+        wage2 = Wage.objects.create(
+            aprooved=datetime(2022, 4, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee2,
+            salary=100,
+            monthly_premium=20,
+            quarterly_premium=45)
+
+        self.assertEqual(wage1.annual_growth(), '-')
+        self.assertEqual(wage2.annual_growth(), '-')
