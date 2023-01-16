@@ -3,6 +3,7 @@ from behaviors.behaviors import Timestamped
 from datetime import datetime
 import pytz
 from django.conf import settings
+from functools import reduce
 
 
 tz = pytz.timezone(settings.TIME_ZONE)
@@ -22,6 +23,54 @@ class Employee(Timestamped):
 
     class Meta:
         ordering = ['last_name', 'first_name', 'patronymic']
+
+    def annual_income(self, year):
+        last_year_wages = Wage.objects.filter(
+            employee=self,
+            aprooved__lt=datetime(
+                year - 1,
+                12,
+                31,
+                23,
+                59,
+                0,
+                tzinfo=tz),
+        ).order_by('-aprooved')
+        wages = Wage.objects.filter(
+            employee=self,
+            aprooved__lt=datetime(
+                year,
+                12,
+                31,
+                23,
+                59,
+                0,
+                tzinfo=tz),
+            aprooved__gt=datetime(
+                year,
+                1,
+                1,
+                0,
+                0,
+                0,
+                tzinfo=tz)
+        ).order_by('aprooved')
+
+        index = 0
+        list = []
+        wage = None
+        if len(last_year_wages) > 0:
+            wage = last_year_wages[0]
+        for month in range(1, 13):
+            if wages[index].aprooved.month == month:
+                wage = wages[index]
+                if index + 1 < len(wages):
+                    index = index + 1
+            if wage is not None:
+                list.append(wage)
+        return reduce(
+            lambda a, b: a+b,
+            map(lambda w: w._calc_net_salary(w), list))
 
 
 class Wish(Timestamped):
