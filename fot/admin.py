@@ -2,11 +2,32 @@ from django import forms
 from django.contrib import admin
 from .models import Employee, Wish, Forecast, Wage, \
     MarketWage
+from django.utils.html import format_html_join, format_html
+from django.utils.safestring import mark_safe
 
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    ...
+    list_display = (
+        "__str__",
+        "last_year_income",
+    )
+
+    fields = [
+        ('first_name', 'last_name'),
+        'email',
+        'income_growth',
+    ]
+
+    def income_growth(self, instance):
+        return format_html_join(
+            mark_safe('<br>'),
+            '{}',
+             ((income,) for income in [instance.annual_income(year) for year in [2020, 2021, 2022]]),
+        )
+    income_growth.allow_tags = True
+
+    readonly_fields = ('income_growth', )
 
 
 @admin.register(Wish)

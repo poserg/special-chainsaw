@@ -70,7 +70,10 @@ class Employee(Timestamped):
                 list.append(wage)
         return reduce(
             lambda a, b: a+b,
-            map(lambda w: w._calc_net_salary(w), list))
+            map(lambda w: w.calc_net_salary(w), list))
+
+    def last_year_income(self):
+        return self.annual_income(2022)
 
 
 class Wish(Timestamped):
@@ -159,7 +162,7 @@ class Wage(Timestamped):
                        self.monthly_premium,
                        self.quarterly_premium))))
 
-    def _calc_net_salary(self, wage):
+    def calc_net_salary(self, wage):
         return wage.salary+wage.monthly_premium+wage.quarterly_premium/3
 
     def _calc_growth(self, old_total, new_total):
@@ -175,8 +178,8 @@ class Wage(Timestamped):
             return "0 %"
         wage = wages[0]
 
-        new_total = self._calc_net_salary(self)
-        old_total = self._calc_net_salary(wage)
+        new_total = self.calc_net_salary(self)
+        old_total = self.calc_net_salary(wage)
         return str(round(self._calc_growth(old_total, new_total), 2)) + " %"
 
     def annual_growth(self):
@@ -203,9 +206,9 @@ class Wage(Timestamped):
         if last_year_wages.count() == 0:
             return "-"
 
-        new_total = self._calc_net_salary(self)
+        new_total = self.calc_net_salary(self)
         wage = last_year_wages[0]
-        old_total = self._calc_net_salary(wage)
+        old_total = self.calc_net_salary(wage)
         return str(round(self._calc_growth(old_total, new_total), 2)) + " %"
 
     class Meta:
