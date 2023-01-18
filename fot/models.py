@@ -24,53 +24,39 @@ class Employee(Timestamped):
     class Meta:
         ordering = ['last_name', 'first_name', 'patronymic']
 
-    def annual_income(self, year):
-        last_year_wages = Wage.objects.filter(
-            employee=self,
-            aprooved__lt=datetime(
-                year - 1,
-                12,
-                31,
-                23,
-                59,
-                0,
-                tzinfo=tz),
-        ).order_by('-aprooved')
+    def annual_income(self):
         wages = Wage.objects.filter(
             employee=self,
-            aprooved__lt=datetime(
-                year,
-                12,
-                31,
-                23,
-                59,
-                0,
-                tzinfo=tz),
-            aprooved__gt=datetime(
-                year,
-                1,
-                1,
-                0,
-                0,
-                0,
-                tzinfo=tz)
         ).order_by('aprooved')
+        if len(wages) == 0:
+            return []
 
         index = 0
-        list = []
+        all_annual_incomes = []
         wage = None
-        if len(last_year_wages) > 0:
-            wage = last_year_wages[0]
-        for month in range(1, 13):
-            if wages[index].aprooved.month == month:
-                wage = wages[index]
-                if index + 1 < len(wages):
-                    index = index + 1
-            if wage is not None:
-                list.append(wage)
-        return reduce(
-            lambda a, b: a+b,
-            map(lambda w: w.calc_net_salary(w), list))
+        year = wages[0].aprooved.year
+        start_month = wages[0].aprooved.month
+        is_last_year = False 
+        while is_last_year is False:
+            annual_income = []
+            for month in range(start_month, 13):
+                if wages[index].aprooved.month == month and \
+                        wages[index].aprooved.year == year:
+                    wage = wages[index]
+                    if index + 1 < len(wages):
+                        index = index + 1
+                    else:
+                        is_last_year = True
+                annual_income.append(wage)
+            all_annual_incomes.append([year, annual_income])
+            start_month = 1
+            year = year + 1
+        result = []
+        for annual_income in all_annual_incomes:
+            result.append([annual_income[0], reduce(
+                lambda a, b: a+b,
+                map(lambda w: w.calc_net_salary(w), annual_income[1]))])
+        return result
 
     def last_year_income(self):
         return self.annual_income(2022)

@@ -142,7 +142,11 @@ class EmployeeTestCase(TestCase):
             monthly_premium=20,
             quarterly_premium=45)
 
-        self.assertEqual(employee.annual_income(2020), 100)
+        self.assertEqual(employee.annual_income(), [
+                [2020, 100.0],
+                [2021, 1200.0],
+                [2022, 1515.0]
+            ])
 
     def test_annual_income(self):
         employee = Employee.objects.create(
@@ -167,4 +171,7 @@ class EmployeeTestCase(TestCase):
             monthly_premium=40,
             quarterly_premium=45)
 
-        self.assertEqual(employee.annual_income(2021), 1575)
+        self.assertEqual(employee.annual_income(), [
+                [2020, 100.0],
+                [2021, 1575.0]
+            ])
