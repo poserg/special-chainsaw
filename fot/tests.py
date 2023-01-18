@@ -2,9 +2,11 @@ from django.test import TestCase
 from .models import Forecast, Employee, Wage
 # from django.db import connection
 # from django.test.utils import CaptureQueriesContext
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 from django.conf import settings
+
+today_year = date.today().year
 
 
 class ForecastTestCase(TestCase):
@@ -130,22 +132,24 @@ class EmployeeTestCase(TestCase):
             first_name='Bob', last_name='Wilson')
         tz = pytz.timezone(settings.TIME_ZONE)
         Wage.objects.create(
-            aprooved=datetime(2020, 12, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=datetime(today_year - 2, 12, 1, 10, 0, 0, tzinfo=tz),
             employee=employee,
             salary=100,
             monthly_premium=0,
             quarterly_premium=0)
         Wage.objects.create(
-            aprooved=datetime(2022, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=datetime(today_year, 4, 1, 10, 0, 0, tzinfo=tz),
             employee=employee,
             salary=100,
             monthly_premium=20,
             quarterly_premium=45)
 
         self.assertEqual(employee.annual_income(), [
-                [2020, 100.0],
-                [2021, 1200.0],
-                [2022, 1515.0]
+                [today_year-2, 100.0],
+                [today_year-1, 1200.0],
+                [today_year, 1515.0],
+                [today_year+1, 1620.0],
+                [today_year+2, 1620.0],
             ])
 
     def test_annual_income(self):
@@ -153,25 +157,28 @@ class EmployeeTestCase(TestCase):
             first_name='Bob', last_name='Wilson')
         tz = pytz.timezone(settings.TIME_ZONE)
         Wage.objects.create(
-            aprooved=datetime(2020, 12, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=datetime(today_year-2, 12, 1, 10, 0, 0, tzinfo=tz),
             employee=employee,
             salary=100,
             monthly_premium=0,
             quarterly_premium=0)
         Wage.objects.create(
-            aprooved=datetime(2021, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=datetime(today_year-1, 4, 1, 10, 0, 0, tzinfo=tz),
             employee=employee,
             salary=100,
             monthly_premium=20,
             quarterly_premium=45)
         Wage.objects.create(
-            aprooved=datetime(2021, 10, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=datetime(today_year-1, 10, 1, 10, 0, 0, tzinfo=tz),
             employee=employee,
             salary=100,
             monthly_premium=40,
             quarterly_premium=45)
 
         self.assertEqual(employee.annual_income(), [
-                [2020, 100.0],
-                [2021, 1575.0]
+                [today_year-2, 100.0],
+                [today_year-1, 1575.0],
+                [today_year, 1860.0],
+                [today_year+1, 1860.0],
+                [today_year+2, 1860.0],
             ])

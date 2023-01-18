@@ -10,7 +10,6 @@ from django.utils.safestring import mark_safe
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = (
         "__str__",
-        "last_year_income",
     )
 
     fields = [
@@ -23,7 +22,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         return format_html_join(
             mark_safe('<br>'),
             '{}',
-             ((income,) for income in [instance.annual_income(year) for year in [2020, 2021, 2022]]),
+             ((income,) for income in instance.annual_income()),
         )
     income_growth.allow_tags = True
 

@@ -1,6 +1,6 @@
 from django.db import models
 from behaviors.behaviors import Timestamped
-from datetime import datetime
+from datetime import datetime, date
 import pytz
 from django.conf import settings
 from functools import reduce
@@ -31,13 +31,14 @@ class Employee(Timestamped):
         if len(wages) == 0:
             return []
 
+        today_year = date.today().year
+
         index = 0
         all_annual_incomes = []
         wage = None
         year = wages[0].aprooved.year
         start_month = wages[0].aprooved.month
-        is_last_year = False 
-        while is_last_year is False:
+        while year <= today_year + 2:
             annual_income = []
             for month in range(start_month, 13):
                 if wages[index].aprooved.month == month and \
@@ -45,10 +46,10 @@ class Employee(Timestamped):
                     wage = wages[index]
                     if index + 1 < len(wages):
                         index = index + 1
-                    else:
-                        is_last_year = True
                 annual_income.append(wage)
             all_annual_incomes.append([year, annual_income])
+            # print(year)
+            # print(all_annual_incomes)
             start_month = 1
             year = year + 1
         result = []
@@ -57,9 +58,6 @@ class Employee(Timestamped):
                 lambda a, b: a+b,
                 map(lambda w: w.calc_net_salary(w), annual_income[1]))])
         return result
-
-    def last_year_income(self):
-        return self.annual_income(2022)
 
 
 class Wish(Timestamped):
