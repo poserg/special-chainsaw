@@ -7,6 +7,7 @@ import pytz
 from django.conf import settings
 
 today_year = date.today().year
+tz = pytz.timezone(settings.TIME_ZONE)
 
 
 class ForecastTestCase(TestCase):
@@ -29,17 +30,11 @@ class ForecastTestCase(TestCase):
         self.assertEqual(forecat.wage_set.count(), 1)
 
 
-class WageTestCase(TestCase):
+def get_datetime(year, month):
+    return datetime(year, month, 1, 10, 0, 0, tzinfo=tz)
 
-    # def test_calc_net_salary(self):
-    #     employee = Employee.objects.create(
-    #         first_name='Bob', last_name='Wilson')
-    #     wage = Wage.objects.create(
-    #         employee=employee,
-    #         salary=100,
-    #         monthly_premium=20,
-    #         quarterly_premium=45)
-    #     self.assertEqual(wage.net_salary(), (100+20+45/3)*0.87)
+
+class WageTestCase(TestCase):
 
     def test_growth(self):
         employee = Employee.objects.create(
@@ -61,15 +56,14 @@ class WageTestCase(TestCase):
     def test_annual_growth(self):
         employee = Employee.objects.create(
             first_name='Bob', last_name='Wilson')
-        tz = pytz.timezone(settings.TIME_ZONE)
         wage1 = Wage.objects.create(
-            aprooved=datetime(2021, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2021, 4),
             employee=employee,
             salary=100,
             monthly_premium=20,
             quarterly_premium=45)
         wage2 = Wage.objects.create(
-            aprooved=datetime(2022, 10, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2022, 10),
             employee=employee,
             salary=120,
             quarterly_premium=60)
@@ -85,15 +79,14 @@ class WageTestCase(TestCase):
     def test_zero_annual_growth(self):
         employee = Employee.objects.create(
             first_name='Bob', last_name='Wilson')
-        tz = pytz.timezone(settings.TIME_ZONE)
         wage1 = Wage.objects.create(
-            aprooved=datetime(2020, 10, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2020, 10),
             employee=employee,
             salary=100,
             monthly_premium=0,
             quarterly_premium=0)
         wage2 = Wage.objects.create(
-            aprooved=datetime(2022, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2022, 4),
             employee=employee,
             salary=100,
             monthly_premium=20,
@@ -105,9 +98,8 @@ class WageTestCase(TestCase):
     def test_annual_growth_by_employee(self):
         employee1 = Employee.objects.create(
             first_name='Bob', last_name='Wilson')
-        tz = pytz.timezone(settings.TIME_ZONE)
         wage1 = Wage.objects.create(
-            aprooved=datetime(2021, 10, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2021, 10),
             employee=employee1,
             salary=100,
             monthly_premium=0,
@@ -116,7 +108,7 @@ class WageTestCase(TestCase):
         employee2 = Employee.objects.create(
             first_name='Mark', last_name='Spenser')
         wage2 = Wage.objects.create(
-            aprooved=datetime(2022, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(2022, 4),
             employee=employee2,
             salary=100,
             monthly_premium=20,
@@ -130,15 +122,14 @@ class EmployeeTestCase(TestCase):
     def test_annual_income_from_december(self):
         employee = Employee.objects.create(
             first_name='Bob', last_name='Wilson')
-        tz = pytz.timezone(settings.TIME_ZONE)
         Wage.objects.create(
-            aprooved=datetime(today_year - 2, 12, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(today_year-2, 12),
             employee=employee,
             salary=100,
             monthly_premium=0,
             quarterly_premium=0)
         Wage.objects.create(
-            aprooved=datetime(today_year, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(today_year, 4),
             employee=employee,
             salary=100,
             monthly_premium=20,
@@ -155,21 +146,20 @@ class EmployeeTestCase(TestCase):
     def test_annual_income(self):
         employee = Employee.objects.create(
             first_name='Bob', last_name='Wilson')
-        tz = pytz.timezone(settings.TIME_ZONE)
         Wage.objects.create(
-            aprooved=datetime(today_year-2, 12, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(today_year-2, 12),
             employee=employee,
             salary=100,
             monthly_premium=0,
             quarterly_premium=0)
         Wage.objects.create(
-            aprooved=datetime(today_year-1, 4, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(today_year-1, 4),
             employee=employee,
             salary=100,
             monthly_premium=20,
             quarterly_premium=45)
         Wage.objects.create(
-            aprooved=datetime(today_year-1, 10, 1, 10, 0, 0, tzinfo=tz),
+            aprooved=get_datetime(today_year-1, 10),
             employee=employee,
             salary=100,
             monthly_premium=40,
