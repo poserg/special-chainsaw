@@ -172,3 +172,30 @@ class EmployeeTestCase(TestCase):
                 [today_year+1, 1860.0],
                 [today_year+2, 1860.0],
             ])
+
+    def test_two_income_at_month(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        Wage.objects.create(
+            aprooved=get_datetime(2020, 1),
+            employee=employee,
+            salary=1,
+            monthly_premium=0)
+        Wage.objects.create(
+            aprooved=datetime(2020, 5, 1, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=10,
+            monthly_premium=0)
+        Wage.objects.create(
+            aprooved=datetime(2020, 5, 2, 10, 0, 0, tzinfo=tz),
+            employee=employee,
+            salary=100,
+            monthly_premium=0)
+        Wage.objects.create(
+            aprooved=get_datetime(2020, 10),
+            employee=employee,
+            salary=1000,
+            monthly_premium=0)
+
+        self.assertEqual(employee.annual_income()[0], [2020, 3504.0])
+        self.assertEqual(employee.annual_income()[3], [2023, 12000.0])

@@ -44,6 +44,13 @@ class Employee(Timestamped):
                 if wages[index].aprooved.month == month and \
                         wages[index].aprooved.year == year:
                     wage = wages[index]
+                    while index+1 < len(wages) and \
+                            wages[index+1].aprooved.month ==\
+                            wage.aprooved.month \
+                            and wages[index+1].aprooved.year == \
+                            wage.aprooved.year:
+                        index = index + 1
+                        wage = wages[index]
                     if index + 1 < len(wages):
                         index = index + 1
                 annual_income.append(wage)
