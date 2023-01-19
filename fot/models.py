@@ -66,6 +66,18 @@ class Employee(Timestamped):
                 map(lambda w: w.calc_net_salary(w), annual_income[1]))])
         return result
 
+    def annual_income_with_percent(self):
+        result = self.annual_income()
+        previous = None
+        for i in result:
+            if previous is None:
+                percent = 100
+            else:
+                percent = round((i[1]-previous)*100/previous)
+            i.append(percent)
+            previous = i[1]
+        return result
+
 
 class Wish(Timestamped):
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT)

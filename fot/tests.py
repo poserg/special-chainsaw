@@ -199,3 +199,42 @@ class EmployeeTestCase(TestCase):
 
         self.assertEqual(employee.annual_income()[0], [2020, 3504.0])
         self.assertEqual(employee.annual_income()[3], [2023, 12000.0])
+
+    def test_annual_income_with_percent(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        Wage.objects.create(
+            aprooved=get_datetime(2020, 1),
+            employee=employee,
+            salary=10,
+            monthly_premium=0)
+        Wage.objects.create(
+            aprooved=get_datetime(2021, 1),
+            employee=employee,
+            salary=12,
+            monthly_premium=0)
+        Wage.objects.create(
+            aprooved=get_datetime(2022, 5),
+            employee=employee,
+            salary=15,
+            monthly_premium=0)
+        self.assertEqual(
+            employee.annual_income_with_percent()[0],
+            [2020, 120.0, 100]
+        )
+        self.assertEqual(
+            employee.annual_income_with_percent()[1], 
+            [2021, 144.0, 20]
+        )
+        self.assertEqual(
+            employee.annual_income_with_percent()[2],
+            [2022, 168.0, 17]
+        )
+        self.assertEqual(
+            employee.annual_income_with_percent()[3],
+            [2023, 180.0, 7]
+        )
+        self.assertEqual(
+            employee.annual_income_with_percent()[4],
+            [2024, 180.0, 0]
+        )

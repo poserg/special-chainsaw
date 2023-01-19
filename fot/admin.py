@@ -2,7 +2,7 @@ from django import forms
 from django.contrib import admin
 from .models import Employee, Wish, Forecast, Wage, \
     MarketWage
-from django.utils.html import format_html_join, format_html
+from django.utils.html import format_html_join
 from django.utils.safestring import mark_safe
 
 
@@ -22,7 +22,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         return format_html_join(
             mark_safe('<br>'),
             '{}',
-             ((income,) for income in instance.annual_income()),
+            ((income,) for income in instance.annual_income_with_percent()),
         )
     income_growth.allow_tags = True
 
