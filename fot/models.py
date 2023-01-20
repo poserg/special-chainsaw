@@ -78,6 +78,10 @@ class Employee(Timestamped):
             previous = i[1]
         return result
 
+    def annual_income_field(self):
+        income = self.annual_income_with_percent()
+        return list(map(lambda x: [x[0], str(x[2]) + "%"], income))
+
 
 class Wish(Timestamped):
     employee = models.ForeignKey(Employee, on_delete=models.PROTECT)

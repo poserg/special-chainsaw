@@ -238,3 +238,15 @@ class EmployeeTestCase(TestCase):
             employee.annual_income_with_percent()[4],
             [2024, 180.0, 0]
         )
+
+    def test_annual_income_field(self):
+        employee = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        Wage.objects.create(
+            aprooved=get_datetime(2020, 1),
+            employee=employee,
+            salary=10,
+            monthly_premium=0)
+        result = employee.annual_income_field()
+        self.assertEqual(result[0], [2020, "100%"])
+        self.assertEqual(result[1], [2021, "0%"])

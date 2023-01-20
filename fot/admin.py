@@ -20,9 +20,16 @@ class EmployeeAdmin(admin.ModelAdmin):
 
     def income_growth(self, instance):
         return format_html_join(
-            mark_safe('<br>'),
-            '{}',
-            ((income,) for income in instance.annual_income_with_percent()),
+            mark_safe(''),
+            """
+            <div class="form-row">
+                <div class="fieldBox">
+                    <label class="required">{}</label>
+                    <input value="{}"/>  
+                </div>
+            </div>""",
+            ((income[0], income[1],)
+                for income in instance.annual_income_field()),
         )
     income_growth.allow_tags = True
 
