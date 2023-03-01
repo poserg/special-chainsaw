@@ -228,7 +228,7 @@ class Wage(Timestamped):
             )
         ]
 
-        ordering = ("employee", "aprooved",)
+        ordering = ("employee", "created", "aprooved",)
 
 
 class MarketWage(Timestamped):
