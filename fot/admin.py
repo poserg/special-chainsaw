@@ -16,6 +16,7 @@ class EmployeeAdmin(admin.ModelAdmin):
         ('first_name', 'last_name'),
         'email',
         'income_growth',
+        'is_active',
     ]
 
     def income_growth(self, instance):
