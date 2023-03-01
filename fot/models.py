@@ -190,10 +190,12 @@ class Wage(Timestamped):
         return str(round(self._calc_growth(old_total, new_total), 2)) + " %"
 
     def annual_growth(self):
+        year = self.aprooved.year - 1 if self.aprooved is not None else \
+            date.today().year
         last_year_wages = Wage.objects.filter(
             employee=self.employee,
             aprooved__lt=datetime(
-                self.aprooved.year - 1,
+                year,
                 12,
                 31,
                 23,
@@ -201,7 +203,7 @@ class Wage(Timestamped):
                 0,
                 tzinfo=tz),
             aprooved__gt=datetime(
-                self.aprooved.year - 1,
+                year,
                 1,
                 1,
                 0,

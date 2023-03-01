@@ -117,6 +117,17 @@ class WageTestCase(TestCase):
         self.assertEqual(wage1.annual_growth(), '-')
         self.assertEqual(wage2.annual_growth(), '-')
 
+    def test_annual_growth_with_unaprooved_wage(self):
+        employee1 = Employee.objects.create(
+            first_name='Bob', last_name='Wilson')
+        wage = Wage.objects.create(
+            employee=employee1,
+            salary=100,
+            monthly_premium=20,
+            quarterly_premium=45)
+
+        self.assertEqual(wage.annual_growth(), '-')
+
 
 class EmployeeTestCase(TestCase):
     def test_annual_income_from_december(self):
