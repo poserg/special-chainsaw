@@ -45,27 +45,49 @@ class ForecastTestCase(TestCase):
         self.assertEqual(forecat.wage_set.count(), 1)
 
     def test_create_filled_wages_after_forecast_created(self):
-        employee = Employee.objects.create(first_name='Bob',
-                                           last_name='Wilson')
+        bob = Employee.objects.create(first_name='Bob',
+                                      last_name='Wilson')
+        nick = Employee.objects.create(first_name='Nick', last_name='Pope')
         original_wage = Wage.objects.create(
             aprooved=get_datetime(today_year-2, 12),
-            employee=employee,
+            employee=bob,
             salary=100,
             position="JUNIOR_PROGRAMMER",
         )
         Wage.objects.create(
-            employee=employee,
+            employee=bob,
             salary=200,
             position="DEVELOPMENT_TEAM_LEADER",
         )
+        Wage.objects.create(
+            aprooved=get_datetime(today_year-2, 9),
+            employee=nick,
+            salary=150,
+            position="JUNIOR",
+        )
+        Wage.objects.create(
+            aprooved=get_datetime(today_year-1, 12),
+            employee=nick,
+            salary=250,
+            position="DEVELOPMENT_TEAM_LEADER",
+        )
         forecast = Forecast.objects.create(name="test forecast")
-        wages = Wage.objects.filter(forecast=forecast)
-        self.assertEqual(len(wages), 1)
+        wages = Wage.objects.filter(
+            forecast=forecast
+        ).order_by('employee__first_name')
+        self.assertEqual(len(wages), 2)
+        self.assertEqual(wages[0].employee.first_name, "Bob")
         self.assertEqual(wages[0].position, "JUNIOR_PROGRAMMER")
         self.assertEqual(wages[0].salary, 100)
         self.assertNotEqual(wages[0].created, original_wage.created)
         self.assertEqual(wages[0].aprooved, None)
         self.assertEqual(wages[0].comment, "Created for test forecast")
+
+        self.assertEqual(wages[1].employee.first_name, "Nick")
+        self.assertEqual(wages[1].position, "DEVELOPMENT_TEAM_LEADER")
+        self.assertEqual(wages[1].salary, 250)
+        self.assertEqual(wages[1].aprooved, None)
+        self.assertEqual(wages[1].comment, "Created for test forecast")
 
 
 def get_datetime(year, month):
