@@ -13,14 +13,29 @@ tz = pytz.timezone(settings.TIME_ZONE)
 class ForecastTestCase(TestCase):
 
     def test_create_new_wages_after_forecast_created(self):
-        Employee.objects.create(first_name='Bob', last_name='Wilson')
-        Employee.objects.create(first_name='Nick', last_name='Pope',
-                                is_active=False)
+        bob = Employee.objects.create(first_name='Bob', last_name='Wilson')
+        Wage.objects.create(
+            aprooved=get_datetime(today_year-2, 12),
+            employee=bob,
+            salary=100,
+        )
+        nick = Employee.objects.create(first_name='Nick', last_name='Pope',
+                                       is_active=False)
+        Wage.objects.create(
+            aprooved=get_datetime(today_year-2, 12),
+            employee=nick,
+            salary=100,
+        )
         forecat = Forecast.objects.create(name="test forecast")
         self.assertEqual(forecat.wage_set.count(), 1)
 
     def test_not_create_new_wages_when_forecast_updated(self):
-        Employee.objects.create(first_name='Bob', last_name='Wilson')
+        bob = Employee.objects.create(first_name='Bob', last_name='Wilson')
+        Wage.objects.create(
+            aprooved=get_datetime(today_year-2, 12),
+            employee=bob,
+            salary=100,
+        )
         Employee.objects.create(first_name='Nick', last_name='Pope',
                                 is_active=False)
         forecat = Forecast.objects.create(name="test forecast")
@@ -28,6 +43,29 @@ class ForecastTestCase(TestCase):
 
         forecat.save()
         self.assertEqual(forecat.wage_set.count(), 1)
+
+    def test_create_filled_wages_after_forecast_created(self):
+        employee = Employee.objects.create(first_name='Bob',
+                                           last_name='Wilson')
+        original_wage = Wage.objects.create(
+            aprooved=get_datetime(today_year-2, 12),
+            employee=employee,
+            salary=100,
+            position="JUNIOR_PROGRAMMER",
+        )
+        Wage.objects.create(
+            employee=employee,
+            salary=200,
+            position="DEVELOPMENT_TEAM_LEADER",
+        )
+        forecast = Forecast.objects.create(name="test forecast")
+        wages = Wage.objects.filter(forecast=forecast)
+        self.assertEqual(len(wages), 1)
+        self.assertEqual(wages[0].position, "JUNIOR_PROGRAMMER")
+        self.assertEqual(wages[0].salary, 100)
+        self.assertNotEqual(wages[0].created, original_wage.created)
+        self.assertEqual(wages[0].aprooved, None)
+        self.assertEqual(wages[0].comment, "Created for test forecast")
 
 
 def get_datetime(year, month):

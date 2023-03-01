@@ -9,4 +9,9 @@ def create_forecasts_wages(sender, instance, **kwargs):
         return
     employes = Employee.objects.filter(is_active=True)
     for employee in employes:
-        Wage.objects.create(forecast=instance, employee=employee, salary=0)
+        wage = Wage.objects.filter(employee=employee).order_by('-aprooved').first()
+        wage.id = None
+        wage.forecast = instance
+        wage.aprooved = None
+        wage.comment = "Created for " + instance.name
+        wage.save()
